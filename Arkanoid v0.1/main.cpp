@@ -13,7 +13,7 @@ Threshold setupMask(Mat inputImage);
 
 int main() {
 
-    Mat inputImage{ imread("C:/Users/37602/source/graphic/Arkanoid v0.1/test-images/test3.png", IMREAD_COLOR) };
+    Mat inputImage{ imread("C:/Users/37602/source/Arkanoid/Arkanoid v0.1/test-images/test3.png", IMREAD_COLOR) };
     const Threshold BallThreshold = setupMask(inputImage);
     //const Threshold BallThreshold = { 0, 62, 43, 255, 137, 255 };
 
