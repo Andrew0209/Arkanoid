@@ -1,2 +1,6 @@
 ﻿  main.cpp
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(46,29): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(49,27): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(52,30): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(125): warning C4715: 'setupMask': not all control paths return a value
   Arkanoid v0.1.vcxproj -> C:\Users\37602\source\Arkanoid\Arkanoid v0.1\x64\Debug\Arkanoid v0.1.exe

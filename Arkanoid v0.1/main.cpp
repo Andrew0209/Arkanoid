@@ -1,21 +1,29 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
+#include "opencv2/features2d.hpp"
 #include <opencv2/opencv.hpp>
-
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 using namespace std;
 using namespace cv;	
+
 struct Threshold {
     int minH, maxH, minS, maxS, minV, maxV;
 };
 
+//struct HSV_Color {
+//    int Hue, Sat, Val;
+//    HSV_Color(int H, int S, int V) :Hue(H), Sat(S), Val(V) {}
+//};
+
 Threshold setupMask(Mat inputImage);
-
+Mat getMaskImage(Threshold TH, Mat rowImage);
 int main() {
+    const Threshold BallThreshold = { 173,0,128,255,0,255 };
+    Mat inputImage{ imread("test-images/test3.png", IMREAD_COLOR) };
 
-    Mat inputImage{ imread("C:/Users/37602/source/Arkanoid/Arkanoid v0.1/test-images/test3.png", IMREAD_COLOR) };
-    const Threshold BallThreshold = setupMask(inputImage);
-    //const Threshold BallThreshold = { 0, 62, 43, 255, 137, 255 };
+    //const Threshold BallThreshold = setupMask(inputImage);
 
     Mat CameraImage;//Declaring a matrix to load the frames//
     namedWindow("Video Player");//Declaring the video to show the video//
@@ -23,35 +31,61 @@ int main() {
     if (!cap.isOpened()) { //This section prompt an error message if no video stream is found//
         cout << "No video stream detected" << endl;
         system("pause");
-        return-1;
+        return -1;
     }
+    SimpleBlobDetector::Params params;
+    // Blob dedectoe setup
+    // Change thresholds
+    params.minThreshold = 0;
+    params.maxThreshold = 255;
+    // Filter by Area.
+    params.filterByArea = true;
+    params.minArea = 1'000;
+    // Filter by Circularity        
+    params.filterByCircularity = true;
+    params.minCircularity = 0.01;
+    // Filter by Convexity
+    params.filterByConvexity = false;
+    params.minConvexity = 0.87;
+    // Filter by Inertia
+    params.filterByInertia = false;
+    params.minInertiaRatio = 0.01;
+    // Storage for blobs
+    vector<KeyPoint> keypoints;
+    // Set up detector with params
+    Ptr<SimpleBlobDetector> detector = SimpleBlobDetector::create(params);
+    // end blob detector setup 
+    //test 
+    Mat im_with_keypoints;
+    Mat im = imread("blob.jpg", IMREAD_GRAYSCALE);
+    detector->detect(im, keypoints);
+    drawKeypoints(im, keypoints, im_with_keypoints, Scalar(0, 0, 255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+    // Show blobs
+    imshow("keypoints", im_with_keypoints);
+    waitKey(0);
+
     while (true) { //Taking an everlasting loop to show the video//
         cap >> CameraImage;
         if (CameraImage.empty()) { //Breaking the loop if no video frame is detected//
             break;
         }
         imshow("Video Player", CameraImage);//Showing the video//
-        if (waitKey(30) == 27) { //If 'Esc' is entered break the loop//
+        //Mat resultImage = getMaskImage(BallThreshold, CameraImage) > 0;
+        Mat resultImage;
+        cvtColor(getMaskImage(BallThreshold, CameraImage) > 0, resultImage, COLOR_RGB2GRAY);
+        detector -> detect(resultImage, keypoints);
+        Mat im_with_keypoints;
+        drawKeypoints(resultImage, keypoints, im_with_keypoints, Scalar(0, 0, 255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+        imshow("Result (Masked) Image", im_with_keypoints);
+
+        if (waitKey(30) == 27) {
             break;
         }
-        Mat mask;
-        // params: input array, lower boundary array, upper boundary array, output array
-        inRange(
-            CameraImage,
-            Scalar(BallThreshold.minH, BallThreshold.minS, BallThreshold.minV),
-            Scalar(BallThreshold.maxH, BallThreshold.maxS, BallThreshold.maxV),
-            mask
-        );
-        Mat resultImage;
-        // params: src1	array, src2 array, output array, mask
-        bitwise_and(CameraImage, CameraImage, resultImage, mask);
-        imshow("Result (Masked) Image", resultImage);
     }
     cap.release();//Releasing the buffer memory//
     return 0;
-
-
 }
+
 Threshold setupMask(Mat inputImage) {
     auto const MASK_WINDOW = "Mask Settings";
     namedWindow(MASK_WINDOW);
@@ -69,36 +103,52 @@ Threshold setupMask(Mat inputImage) {
     createTrackbar("Min Val", MASK_WINDOW, &minVal, 255);
     createTrackbar("Max Val", MASK_WINDOW, &maxVal, 255);
 
+    VideoCapture cap(0);
+    Mat CameraImage;
     while (true) {
-        //// 2. Read and convert image to HSV color space
-        Mat inputImageHSV;
-        cvtColor(inputImage, inputImageHSV, COLOR_BGR2HSV);
-
-        //// 3. Create mask and result (masked) image
-        Mat mask;
-        // params: input array, lower boundary array, upper boundary array, output array
-        inRange(
-            inputImageHSV,
-            Scalar(minHue, minSat, minVal),
-            Scalar(maxHue, maxSat, maxVal),
-            mask
-        );
-        Mat resultImage;
-        // params: src1	array, src2 array, output array, mask
-        bitwise_and(inputImage, inputImage, resultImage, mask);
-
-        //// 4. Show images        
-       // imshow("Input Image", inputImage);
+        cap >> CameraImage;
+        if (CameraImage.empty()) { //Breaking the loop if no video frame is detected//
+            break;
+        }
+        Threshold th = { minHue, maxHue, minSat, maxSat,  minVal, maxVal };
+        Mat resultImage = getMaskImage(th, CameraImage);
         imshow("Result (Masked) Image", resultImage);
-        // imshow("Mask", mask);
-        //// Wait for 'esc' (27) key press for 30ms. If pressed, end program.
         if (waitKey(30) == 27) {
-            cout << '{' << minHue << ',' << maxHue << ',' << minSat << ',' << maxSat << ',' << minVal << ',' << maxVal << '}' << '\n';
-            //destroyWindow("Result (Masked) Image");
-            //destroyWindow("Input Image");
-            //destroyWindow("Mask Settings");
+            cout << '{' << 
+                minHue << ',' << maxHue << ',' << 
+                minSat << ',' << maxSat << ',' << 
+                minVal << ',' << maxVal << '}' << '\n';
             destroyAllWindows();
             return { minHue, maxHue, minSat, maxSat, minVal, maxVal };
         }
     }
 }
+
+Mat getMaskImage(Threshold TH, Mat rowImage) {
+    Mat inputImageHSV, resultImage, mask;
+    cvtColor(rowImage, inputImageHSV, COLOR_BGR2HSV);
+    if (TH.minH <= TH.maxH) {
+        inRange(
+            inputImageHSV,
+            Scalar(TH.minH, TH.minS, TH.minV),
+            Scalar(TH.maxH, TH.maxS, TH.maxV),
+            mask);
+    }
+    else {
+        Mat mask1, mask2;
+        inRange(
+            inputImageHSV,
+            Scalar(TH.minH, TH.minS, TH.minV),
+            Scalar(255, TH.maxS, TH.maxV),
+            mask1);
+        inRange(
+            inputImageHSV,
+            Scalar(0, TH.minS, TH.minV),
+            Scalar(TH.maxH, TH.maxS, TH.maxV),
+            mask2);
+        mask = mask1 + mask2;
+    }
+    bitwise_and(rowImage, rowImage, resultImage, mask);
+    return resultImage;
+}
+
