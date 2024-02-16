@@ -42,7 +42,7 @@ int main() {
     params.filterByArea = true;
     params.minArea = 1'000;
     // Filter by Circularity        
-    params.filterByCircularity = true;
+    params.filterByCircularity = false;
     params.minCircularity = 0.01;
     // Filter by Convexity
     params.filterByConvexity = false;
@@ -55,15 +55,16 @@ int main() {
     // Set up detector with params
     Ptr<SimpleBlobDetector> detector = SimpleBlobDetector::create(params);
     // end blob detector setup 
+    // 
     //test 
-    Mat im_with_keypoints;
-    Mat im = imread("blob.jpg", IMREAD_GRAYSCALE);
-    detector->detect(im, keypoints);
-    drawKeypoints(im, keypoints, im_with_keypoints, Scalar(0, 0, 255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-    // Show blobs
-    imshow("keypoints", im_with_keypoints);
-    waitKey(0);
-
+    //Mat im_with_keypoints;
+    //Mat im = imread("blob.jpg", IMREAD_GRAYSCALE);
+    //detector->detect(im, keypoints);
+    //drawKeypoints(im, keypoints, im_with_keypoints, Scalar(0, 0, 255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+    //// Show blobs
+    //imshow("keypoints", im_with_keypoints);
+    //waitKey(0);
+    //
     while (true) { //Taking an everlasting loop to show the video//
         cap >> CameraImage;
         if (CameraImage.empty()) { //Breaking the loop if no video frame is detected//
@@ -73,6 +74,7 @@ int main() {
         //Mat resultImage = getMaskImage(BallThreshold, CameraImage) > 0;
         Mat resultImage;
         cvtColor(getMaskImage(BallThreshold, CameraImage) > 0, resultImage, COLOR_RGB2GRAY);
+        resultImage = 255 - resultImage;
         detector -> detect(resultImage, keypoints);
         Mat im_with_keypoints;
         drawKeypoints(resultImage, keypoints, im_with_keypoints, Scalar(0, 0, 255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
