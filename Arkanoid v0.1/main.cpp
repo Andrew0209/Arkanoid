@@ -17,13 +17,13 @@ struct Threshold {
 //    HSV_Color(int H, int S, int V) :Hue(H), Sat(S), Val(V) {}
 //};
 
-Threshold setupMask(Mat inputImage);
+Threshold setupMask(Mat inputImage = Mat());
 Mat getMaskImage(Threshold TH, Mat rowImage);
 int main() {
-    const Threshold BallThreshold = { 173,0,128,255,0,255 };
+    //const Threshold BallThreshold = { 88, 151, 33, 116, 0, 232 };// blue color pen
+    //const Threshold BallThreshold = { 173,0,128,255,0,255 };
     Mat inputImage{ imread("test-images/test3.png", IMREAD_COLOR) };
-
-    //const Threshold BallThreshold = setupMask(inputImage);
+    const Threshold BallThreshold = setupMask();
 
     Mat CameraImage;//Declaring a matrix to load the frames//
     namedWindow("Video Player");//Declaring the video to show the video//
@@ -41,6 +41,7 @@ int main() {
     // Filter by Area.
     params.filterByArea = true;
     params.minArea = 1'000;
+    params.maxArea = 10'000'000;
     // Filter by Circularity        
     params.filterByCircularity = false;
     params.minCircularity = 0.01;
@@ -71,14 +72,22 @@ int main() {
             break;
         }
         imshow("Video Player", CameraImage);//Showing the video//
-        //Mat resultImage = getMaskImage(BallThreshold, CameraImage) > 0;
+        //Mat maskedImage = getMaskImage(BallThreshold, CameraImage) > 0;
         Mat resultImage;
         cvtColor(getMaskImage(BallThreshold, CameraImage) > 0, resultImage, COLOR_RGB2GRAY);
         resultImage = 255 - resultImage;
+
+        // Blurring image
+        int dilateSize = 5;
+            Mat element = getStructuringElement(MORPH_RECT,
+                Size(2 * dilateSize + 1, 2 * dilateSize + 1),
+                Point(dilateSize, dilateSize));
+            dilate(resultImage, resultImage, element);
+        // 
+
         detector -> detect(resultImage, keypoints);
-        Mat im_with_keypoints;
-        drawKeypoints(resultImage, keypoints, im_with_keypoints, Scalar(0, 0, 255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-        imshow("Result (Masked) Image", im_with_keypoints);
+        drawKeypoints(resultImage, keypoints, resultImage, Scalar(0, 0, 255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+        imshow("Result Image", resultImage);
 
         if (waitKey(30) == 27) {
             break;
@@ -91,7 +100,7 @@ int main() {
 Threshold setupMask(Mat inputImage) {
     auto const MASK_WINDOW = "Mask Settings";
     namedWindow(MASK_WINDOW);
-
+    bool useCamera = inputImage.empty();
     // HSV range to detect blue color
     int minHue = 0, maxHue = 255;
     int minSat = 0, maxSat = 255;
@@ -106,15 +115,20 @@ Threshold setupMask(Mat inputImage) {
     createTrackbar("Max Val", MASK_WINDOW, &maxVal, 255);
 
     VideoCapture cap(0);
-    Mat CameraImage;
+    Mat CameraImage, maskedImage;
     while (true) {
-        cap >> CameraImage;
-        if (CameraImage.empty()) { //Breaking the loop if no video frame is detected//
-            break;
+        if (useCamera) {
+            cap >> CameraImage;
+            if (CameraImage.empty()) { //Breaking the loop if no video frame is detected//
+                break;
+            }
         }
         Threshold th = { minHue, maxHue, minSat, maxSat,  minVal, maxVal };
-        Mat resultImage = getMaskImage(th, CameraImage);
-        imshow("Result (Masked) Image", resultImage);
+
+        if (useCamera)maskedImage = getMaskImage(th, CameraImage);
+        else maskedImage = getMaskImage(th, inputImage);
+
+        imshow("Result (Masked) Image", maskedImage);
         if (waitKey(30) == 27) {
             cout << '{' << 
                 minHue << ',' << maxHue << ',' << 
@@ -127,7 +141,7 @@ Threshold setupMask(Mat inputImage) {
 }
 
 Mat getMaskImage(Threshold TH, Mat rowImage) {
-    Mat inputImageHSV, resultImage, mask;
+    Mat inputImageHSV, maskedImage, mask;
     cvtColor(rowImage, inputImageHSV, COLOR_BGR2HSV);
     if (TH.minH <= TH.maxH) {
         inRange(
@@ -150,7 +164,6 @@ Mat getMaskImage(Threshold TH, Mat rowImage) {
             mask2);
         mask = mask1 + mask2;
     }
-    bitwise_and(rowImage, rowImage, resultImage, mask);
-    return resultImage;
+    bitwise_and(rowImage, rowImage, maskedImage, mask);
+    return maskedImage;
 }
-
