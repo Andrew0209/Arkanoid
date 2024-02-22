@@ -6,24 +6,20 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 using namespace std;
-using namespace cv;	
+using namespace cv;
 
 struct Threshold {
     int minH, maxH, minS, maxS, minV, maxV;
 };
 
-//struct HSV_Color {
-//    int Hue, Sat, Val;
-//    HSV_Color(int H, int S, int V) :Hue(H), Sat(S), Val(V) {}
-//};
-
 Threshold setupMask(Mat inputImage = Mat());
 Mat getMaskImage(Threshold TH, Mat rowImage);
+
 int main() {
     //const Threshold BallThreshold = { 88, 151, 33, 116, 0, 232 };// blue color pen
-    const Threshold BallThreshold = { 173,0,128,255,0,255 };
+    //const Threshold BallThreshold = { 173,0,128,255,0,255 };
     Mat inputImage{ imread("test-images/test3.png", IMREAD_COLOR) };
-    //const Threshold BallThreshold = setupMask();
+    const Threshold BallThreshold = setupMask();
 
     Mat CameraImage;//Declaring a matrix to load the frames//
     namedWindow("Video Player");//Declaring the video to show the video//
@@ -35,27 +31,83 @@ int main() {
     }
     while (true) { //Taking an everlasting loop to show the video//
         cap >> CameraImage;
-        if (CameraImage.empty()) { //Breaking the loop if no video frame is detected//
+        if (CameraImage.empty()) {
             break;
         }
         imshow("Video Player", CameraImage);//Showing the video//
-        //Mat maskedImage = getMaskImage(BallThreshold, CameraImage) > 0;
-        Mat resultImage;
+        Mat resultImage, drawing;
         cvtColor(getMaskImage(BallThreshold, CameraImage) > 0, resultImage, COLOR_RGB2GRAY);
-        //resultImage = 255 - resultImage;
-        //Blurring image
+        // Similar to blurring image
         int size = 5;
-            Mat element = getStructuringElement(MORPH_RECT,
-                Size(2 * size + 1, 2 * size + 1),
-                Point(size, size));
+        Mat element = getStructuringElement(MORPH_RECT,
+            Size(2 * size + 1, 2 * size + 1),
+            Point(size, size));
 
         erode(resultImage, resultImage, element);
-        //resultImage = 255 - resultImage;
-        Moments m = moments(resultImage, false);
-        Point p(m.m10 / m.m00, m.m01 / m.m00);
-        circle(resultImage, p, 5, 128, 10);
-        cout << p << '\n';
-        imshow("Result Image", resultImage);
+
+        // Single blob centre
+        //Moments m = moments(resultImage, false);
+        //Point p(m.m10 / m.m00, m.m01 / m.m00);
+        //cvtColor(255 - resultImage, drawing, COLOR_GRAY2RGB);
+        //circle(drawing, p, 10, Scalar(0, 0, 255), -1);
+        //cout << p << '\n';
+
+        //Multi blob centre
+        Mat canny_output;
+        vector<vector<Point> > contours;
+        vector<Vec4i> hierarchy;
+        // detect edges using canny
+        Canny(resultImage, canny_output, 0, 5, 3);
+        // find contours
+        findContours(canny_output, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
+        //if (contours.empty()) {
+        //    cout << "no blobs detected\n";
+        //    continue;
+        //}
+
+        // get the moments and contours of blobs > BallTH
+        const int BlobTH = 200;
+        int blobCount = 0;
+        vector<Moments> blobMoments;
+        vector<vector<Point> > blobContours;
+        for (int i = 0; i < contours.size(); i++) {
+            Moments moment = moments(contours[i], false);
+            if (moment.m00 > BlobTH) {
+                blobMoments.push_back(moment);
+                blobContours.push_back(contours[i]);
+            }
+        }
+        blobCount = blobMoments.size();
+        // get the centroid of figures.
+        vector<Point2f> blobCenters(blobCount, Point2f(0, 0));
+        for (int i = 0; i < blobCount; i++) {
+            if (blobMoments[i].m00 != 0)blobCenters[i] = Point2f(blobMoments[i].m10 / blobMoments[i].m00, blobMoments[i].m01 / blobMoments[i].m00);
+        }
+        // Find largest blob
+
+        int maxBlobIndex = 0;
+        for (int i = 0; i < blobCount; i++) {
+            if (blobMoments[maxBlobIndex].m00 < blobMoments[i].m00)maxBlobIndex = i;
+            if (blobMoments[maxBlobIndex].m00);
+        }
+        // draw contours
+        cvtColor(255 - resultImage, drawing, COLOR_GRAY2RGB);
+
+        // Draw centers and contours of all blobs larger BallTH
+        for (int i = 0; i < blobCount; i++){
+            drawContours(drawing, blobContours, i, Scalar(255, 0, 0), 2, 8, hierarchy, 0, Point());
+            circle(drawing, blobCenters[i], 5, Scalar(0, 0, 255), 10); // Red circle
+        }
+        // Draw centers and contours of max area blob
+        if (blobCount != 0) {
+            drawContours(drawing, blobContours, maxBlobIndex, Scalar(255, 0, 0), 2, 8, hierarchy, 0, Point());
+            circle(drawing, blobCenters[maxBlobIndex], 5, Scalar(0, 255, 0), 10); // Green circle
+        }
+        cout << blobCount << " blobs\n";
+        if(blobCount != 0)
+            cout << "max blob center: " << blobCenters[maxBlobIndex] << '\t' << "max area: " << blobMoments[maxBlobIndex].m00 << '\n';
+        for (int i = 0; i < blobCount; i++)cout << "area: " << i << ' ' << blobMoments[i].m00 << '\n';
+        imshow("Result Image", drawing);
 
         if (waitKey(30) == 27) {
             break;
@@ -98,9 +150,9 @@ Threshold setupMask(Mat inputImage) {
 
         imshow("Result (Masked) Image", maskedImage);
         if (waitKey(30) == 27) {
-            cout << '{' << 
-                minHue << ',' << maxHue << ',' << 
-                minSat << ',' << maxSat << ',' << 
+            cout << '{' <<
+                minHue << ',' << maxHue << ',' <<
+                minSat << ',' << maxSat << ',' <<
                 minVal << ',' << maxVal << '}' << '\n';
             destroyAllWindows();
             return { minHue, maxHue, minSat, maxSat, minVal, maxVal };
