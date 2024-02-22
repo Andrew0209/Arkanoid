@@ -1,6 +1,13 @@
 ﻿  main.cpp
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(47,29): warning C4305: '=': truncation from 'double' to 'float'
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(50,27): warning C4305: '=': truncation from 'double' to 'float'
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(53,30): warning C4305: '=': truncation from 'double' to 'float'
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(141): warning C4715: 'setupMask': not all control paths return a value
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(55,38): warning C4244: 'argument': conversion from 'double' to '_Tp', possible loss of data
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(55,38): warning C4244:         with
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(55,38): warning C4244:         [
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(55,38): warning C4244:             _Tp=int
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(55,38): warning C4244:         ]
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(55,23): warning C4244: 'argument': conversion from 'double' to '_Tp', possible loss of data
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(55,23): warning C4244:         with
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(55,23): warning C4244:         [
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(55,23): warning C4244:             _Tp=int
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(55,23): warning C4244:         ]
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(109): warning C4715: 'setupMask': not all control paths return a value
   Arkanoid v0.1.vcxproj -> C:\Users\37602\source\Arkanoid\Arkanoid v0.1\x64\Debug\Arkanoid v0.1.exe

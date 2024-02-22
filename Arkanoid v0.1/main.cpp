@@ -21,9 +21,9 @@ Threshold setupMask(Mat inputImage = Mat());
 Mat getMaskImage(Threshold TH, Mat rowImage);
 int main() {
     //const Threshold BallThreshold = { 88, 151, 33, 116, 0, 232 };// blue color pen
-    //const Threshold BallThreshold = { 173,0,128,255,0,255 };
+    const Threshold BallThreshold = { 173,0,128,255,0,255 };
     Mat inputImage{ imread("test-images/test3.png", IMREAD_COLOR) };
-    const Threshold BallThreshold = setupMask();
+    //const Threshold BallThreshold = setupMask();
 
     Mat CameraImage;//Declaring a matrix to load the frames//
     namedWindow("Video Player");//Declaring the video to show the video//
@@ -33,39 +33,6 @@ int main() {
         system("pause");
         return -1;
     }
-    SimpleBlobDetector::Params params;
-    // Blob dedectoe setup
-    // Change thresholds
-    params.minThreshold = 0;
-    params.maxThreshold = 255;
-    // Filter by Area.
-    params.filterByArea = true;
-    params.minArea = 1'000;
-    params.maxArea = 10'000'000;
-    // Filter by Circularity        
-    params.filterByCircularity = false;
-    params.minCircularity = 0.01;
-    // Filter by Convexity
-    params.filterByConvexity = false;
-    params.minConvexity = 0.87;
-    // Filter by Inertia
-    params.filterByInertia = false;
-    params.minInertiaRatio = 0.01;
-    // Storage for blobs
-    vector<KeyPoint> keypoints;
-    // Set up detector with params
-    Ptr<SimpleBlobDetector> detector = SimpleBlobDetector::create(params);
-    // end blob detector setup 
-    // 
-    //test 
-    //Mat im_with_keypoints;
-    //Mat im = imread("blob.jpg", IMREAD_GRAYSCALE);
-    //detector->detect(im, keypoints);
-    //drawKeypoints(im, keypoints, im_with_keypoints, Scalar(0, 0, 255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-    //// Show blobs
-    //imshow("keypoints", im_with_keypoints);
-    //waitKey(0);
-    //
     while (true) { //Taking an everlasting loop to show the video//
         cap >> CameraImage;
         if (CameraImage.empty()) { //Breaking the loop if no video frame is detected//
@@ -75,18 +42,19 @@ int main() {
         //Mat maskedImage = getMaskImage(BallThreshold, CameraImage) > 0;
         Mat resultImage;
         cvtColor(getMaskImage(BallThreshold, CameraImage) > 0, resultImage, COLOR_RGB2GRAY);
-        resultImage = 255 - resultImage;
-
-        // Blurring image
-        int dilateSize = 5;
+        //resultImage = 255 - resultImage;
+        //Blurring image
+        int size = 5;
             Mat element = getStructuringElement(MORPH_RECT,
-                Size(2 * dilateSize + 1, 2 * dilateSize + 1),
-                Point(dilateSize, dilateSize));
-            dilate(resultImage, resultImage, element);
-        // 
+                Size(2 * size + 1, 2 * size + 1),
+                Point(size, size));
 
-        detector -> detect(resultImage, keypoints);
-        drawKeypoints(resultImage, keypoints, resultImage, Scalar(0, 0, 255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+        erode(resultImage, resultImage, element);
+        //resultImage = 255 - resultImage;
+        Moments m = moments(resultImage, false);
+        Point p(m.m10 / m.m00, m.m01 / m.m00);
+        circle(resultImage, p, 5, 128, 10);
+        cout << p << '\n';
         imshow("Result Image", resultImage);
 
         if (waitKey(30) == 27) {
