@@ -8,18 +8,24 @@
 using namespace std;
 using namespace cv;
 
+#define NONE_CENTRE_POINT Point(-1, -1)
+
 struct Threshold {
     int minH, maxH, minS, maxS, minV, maxV;
+};
+struct MassCentre {
+    Point point;
+    Moments moment;
 };
 
 Threshold setupMask(Mat inputImage = Mat());
 Mat getMaskImage(Threshold TH, Mat rowImage);
-
 int main() {
-    //const Threshold BallThreshold = { 88, 151, 33, 116, 0, 232 };// blue color pen
+    Threshold BallThreshold;
+    BallThreshold = { 118,160,0,255,0,69 };// blue color pen
     //const Threshold BallThreshold = { 173,0,128,255,0,255 };
     Mat inputImage{ imread("test-images/test3.png", IMREAD_COLOR) };
-    const Threshold BallThreshold = setupMask();
+    BallThreshold = setupMask();
 
     Mat CameraImage;//Declaring a matrix to load the frames//
     namedWindow("Video Player");//Declaring the video to show the video//
@@ -29,6 +35,8 @@ int main() {
         system("pause");
         return -1;
     }
+    MassCentre pastCentre;
+    double velocity = 0;
     while (true) { //Taking an everlasting loop to show the video//
         cap >> CameraImage;
         if (CameraImage.empty()) {
@@ -38,19 +46,11 @@ int main() {
         Mat resultImage, drawing;
         cvtColor(getMaskImage(BallThreshold, CameraImage) > 0, resultImage, COLOR_RGB2GRAY);
         // Similar to blurring image
-        int size = 5;
+        int size = 3;
         Mat element = getStructuringElement(MORPH_RECT,
             Size(2 * size + 1, 2 * size + 1),
             Point(size, size));
-
         erode(resultImage, resultImage, element);
-
-        // Single blob centre
-        //Moments m = moments(resultImage, false);
-        //Point p(m.m10 / m.m00, m.m01 / m.m00);
-        //cvtColor(255 - resultImage, drawing, COLOR_GRAY2RGB);
-        //circle(drawing, p, 10, Scalar(0, 0, 255), -1);
-        //cout << p << '\n';
 
         //Multi blob centre
         Mat canny_output;
@@ -60,14 +60,9 @@ int main() {
         Canny(resultImage, canny_output, 0, 5, 3);
         // find contours
         findContours(canny_output, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
-        //if (contours.empty()) {
-        //    cout << "no blobs detected\n";
-        //    continue;
-        //}
 
-        // get the moments and contours of blobs > BallTH
-        const int BlobTH = 200;
-        int blobCount = 0;
+        // get the moments and contours of blobs > BlobTH
+        const int BlobTH = 500;
         vector<Moments> blobMoments;
         vector<vector<Point> > blobContours;
         for (int i = 0; i < contours.size(); i++) {
@@ -77,37 +72,57 @@ int main() {
                 blobContours.push_back(contours[i]);
             }
         }
-        blobCount = blobMoments.size();
-        // get the centroid of figures.
-        vector<Point2f> blobCenters(blobCount, Point2f(0, 0));
-        for (int i = 0; i < blobCount; i++) {
-            if (blobMoments[i].m00 != 0)blobCenters[i] = Point2f(blobMoments[i].m10 / blobMoments[i].m00, blobMoments[i].m01 / blobMoments[i].m00);
-        }
-        // Find largest blob
-
+        int blobCount = blobMoments.size();
         int maxBlobIndex = 0;
-        for (int i = 0; i < blobCount; i++) {
-            if (blobMoments[maxBlobIndex].m00 < blobMoments[i].m00)maxBlobIndex = i;
-            if (blobMoments[maxBlobIndex].m00);
-        }
-        // draw contours
-        cvtColor(255 - resultImage, drawing, COLOR_GRAY2RGB);
+        MassCentre centre;
+        if (blobCount < 2) {
+            // Single blob detection
 
-        // Draw centers and contours of all blobs larger BallTH
-        for (int i = 0; i < blobCount; i++){
-            drawContours(drawing, blobContours, i, Scalar(255, 0, 0), 2, 8, hierarchy, 0, Point());
-            circle(drawing, blobCenters[i], 5, Scalar(0, 0, 255), 10); // Red circle
+            centre.moment = moments(resultImage, false);
+            if (centre.moment.m00 > BlobTH) {
+                centre.point = Point(centre.moment.m10 / centre.moment.m00,
+                    centre.moment.m01 / centre.moment.m00);
+                blobCount = 1;
+            }
+            else centre.point = NONE_CENTRE_POINT;
         }
+        else {
+            // get the centroid of figures.
+            vector<Point2f> blobCenters(blobCount, Point2f(0, 0));
+            for (int i = 0; i < blobCount; i++) {
+                if (blobMoments[i].m00 != 0)
+                    blobCenters[i] = Point2f(blobMoments[i].m10 / blobMoments[i].m00,
+                        blobMoments[i].m01 / blobMoments[i].m00);
+            }
+            // Find largest blob
+            for (int i = 0; i < blobCount; i++) {
+                if (blobMoments[maxBlobIndex].m00 < blobMoments[i].m00)maxBlobIndex = i;
+            }
+            centre.point = blobCenters[maxBlobIndex];
+            centre.moment = blobMoments[maxBlobIndex];
+            // draw contours
+            // Draw centers and contours of all blobs larger BlobTH
+            //for (int i = 0; i < blobCount; i++) {
+            //    drawContours(drawing, blobContours, i, Scalar(255, 0, 0), 2, 8, hierarchy, 0, Point());
+            //    circle(drawing, blobCenters[i], 5, Scalar(0, 0, 255), 10); // Red circle
+            //}
+        }
+
+        // calculate velocity
+        double vx = (centre.point.x - pastCentre.point.x);
+        double vy = (centre.point.y - pastCentre.point.y);
+        velocity = sqrt(vx * vx + vy * vy);
+        if (centre.point != NONE_CENTRE_POINT)pastCentre = centre;
+        cout << "velocity: " << velocity << '\n';
+
         // Draw centers and contours of max area blob
-        if (blobCount != 0) {
-            drawContours(drawing, blobContours, maxBlobIndex, Scalar(255, 0, 0), 2, 8, hierarchy, 0, Point());
-            circle(drawing, blobCenters[maxBlobIndex], 5, Scalar(0, 255, 0), 10); // Green circle
-        }
+        cvtColor(255 - resultImage, drawing, COLOR_GRAY2RGB);
+        drawContours(drawing, blobContours, maxBlobIndex, Scalar(255, 0, 0), 2, 8, hierarchy, 0, Point());
+        circle(drawing, centre.point, 5, Scalar(0, 255, 0), 10); // Green circle
         cout << blobCount << " blobs\n";
-        if(blobCount != 0)
-            cout << "max blob center: " << blobCenters[maxBlobIndex] << '\t' << "max area: " << blobMoments[maxBlobIndex].m00 << '\n';
-        for (int i = 0; i < blobCount; i++)cout << "area: " << i << ' ' << blobMoments[i].m00 << '\n';
-        imshow("Result Image", drawing);
+        cout << "max blob center: " << centre.point << '\t' << "max area: " << centre.moment.m00 << '\n';
+        
+        imshow("Result Image", resultImage);
 
         if (waitKey(30) == 27) {
             break;
