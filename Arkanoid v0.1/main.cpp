@@ -22,8 +22,8 @@ Threshold setupMask(Mat inputImage = Mat());
 Mat getMaskImage(Threshold TH, Mat rowImage);
 int main() {
     Threshold BallThreshold;
-    BallThreshold = { 118,160,0,255,0,69 };// blue color pen
-    //const Threshold BallThreshold = { 173,0,128,255,0,255 };
+    BallThreshold = { 132,255,130,255,193,255 };
+    //const Threshold BallThreshold = { 173,0,128,255,0,255 }; clen red
     Mat inputImage{ imread("test-images/test3.png", IMREAD_COLOR) };
     BallThreshold = setupMask();
 
@@ -42,9 +42,11 @@ int main() {
         if (CameraImage.empty()) {
             break;
         }
-        imshow("Video Player", CameraImage);//Showing the video//
+        flip(CameraImage, CameraImage, 1); // flip while use frontal camera
+        imshow("Video Player", CameraImage); // Showing the original video
         Mat resultImage, drawing;
         cvtColor(getMaskImage(BallThreshold, CameraImage) > 0, resultImage, COLOR_RGB2GRAY);
+        
         // Similar to blurring image
         int size = 3;
         Mat element = getStructuringElement(MORPH_RECT,
@@ -52,7 +54,7 @@ int main() {
             Point(size, size));
         erode(resultImage, resultImage, element);
 
-        //Multi blob centre
+        //Multi blob center
         Mat canny_output;
         vector<vector<Point> > contours;
         vector<Vec4i> hierarchy;
@@ -74,17 +76,16 @@ int main() {
         }
         int blobCount = blobMoments.size();
         int maxBlobIndex = 0;
-        MassCentre centre;
+        MassCentre center;
         if (blobCount < 2) {
             // Single blob detection
-
-            centre.moment = moments(resultImage, false);
-            if (centre.moment.m00 > BlobTH) {
-                centre.point = Point(centre.moment.m10 / centre.moment.m00,
-                    centre.moment.m01 / centre.moment.m00);
+            center.moment = moments(resultImage, false);
+            if (center.moment.m00 > BlobTH) {
+                center.point = Point(center.moment.m10 / center.moment.m00,
+                    center.moment.m01 / center.moment.m00);
                 blobCount = 1;
             }
-            else centre.point = NONE_CENTRE_POINT;
+            else center.point = NONE_CENTRE_POINT;
         }
         else {
             // get the centroid of figures.
@@ -98,8 +99,11 @@ int main() {
             for (int i = 0; i < blobCount; i++) {
                 if (blobMoments[maxBlobIndex].m00 < blobMoments[i].m00)maxBlobIndex = i;
             }
-            centre.point = blobCenters[maxBlobIndex];
-            centre.moment = blobMoments[maxBlobIndex];
+
+            // max blob parametars 
+            center.point = blobCenters[maxBlobIndex];
+            center.moment = blobMoments[maxBlobIndex];
+
             // draw contours
             // Draw centers and contours of all blobs larger BlobTH
             //for (int i = 0; i < blobCount; i++) {
@@ -109,21 +113,21 @@ int main() {
         }
 
         // calculate velocity
-        double vx = (centre.point.x - pastCentre.point.x);
-        double vy = (centre.point.y - pastCentre.point.y);
+        double vx = (center.point.x - pastCentre.point.x);
+        double vy = (center.point.y - pastCentre.point.y);
         velocity = sqrt(vx * vx + vy * vy);
-        if (centre.point != NONE_CENTRE_POINT)pastCentre = centre;
         cout << "velocity: " << velocity << '\n';
 
         // Draw centers and contours of max area blob
         cvtColor(255 - resultImage, drawing, COLOR_GRAY2RGB);
         drawContours(drawing, blobContours, maxBlobIndex, Scalar(255, 0, 0), 2, 8, hierarchy, 0, Point());
-        circle(drawing, centre.point, 5, Scalar(0, 255, 0), 10); // Green circle
+        circle(drawing, center.point, 5, Scalar(0, 255, 0), 10); // Green circle
+        arrowedLine(drawing, center.point, center.point + (center.point - pastCentre.point) / 2, Scalar(0,0,255), 3);
         cout << blobCount << " blobs\n";
-        cout << "max blob center: " << centre.point << '\t' << "max area: " << centre.moment.m00 << '\n';
-        
-        imshow("Result Image", resultImage);
-
+        cout << "max blob center: " << center.point << '\t' << "max area: " << center.moment.m00 << '\n';
+        // update center and image
+        if (center.point != NONE_CENTRE_POINT)pastCentre = center; 
+        imshow("Result Image", drawing);
         if (waitKey(30) == 27) {
             break;
         }

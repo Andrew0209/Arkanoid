@@ -1,24 +1,24 @@
 ﻿  main.cpp
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(75,23): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(84,39): warning C4244: 'argument': conversion from 'double' to '_Tp', possible loss of data
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(84,39): warning C4244:         with
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(84,39): warning C4244:         [
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(84,39): warning C4244:             _Tp=int
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(84,39): warning C4244:         ]
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(83,56): warning C4244: 'argument': conversion from 'double' to '_Tp', possible loss of data
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(83,56): warning C4244:         with
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(83,56): warning C4244:         [
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(83,56): warning C4244:             _Tp=int
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(83,56): warning C4244:         ]
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(95,44): warning C4244: 'argument': conversion from 'double' to '_Tp', possible loss of data
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(95,44): warning C4244:         with
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(95,44): warning C4244:         [
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(95,44): warning C4244:             _Tp=float
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(95,44): warning C4244:         ]
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(94,65): warning C4244: 'argument': conversion from 'double' to '_Tp', possible loss of data
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(94,65): warning C4244:         with
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(94,65): warning C4244:         [
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(94,65): warning C4244:             _Tp=float
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(94,65): warning C4244:         ]
-C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(176): warning C4715: 'setupMask': not all control paths return a value
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(77,23): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(85,39): warning C4244: 'argument': conversion from 'double' to '_Tp', possible loss of data
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(85,39): warning C4244:         with
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(85,39): warning C4244:         [
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(85,39): warning C4244:             _Tp=int
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(85,39): warning C4244:         ]
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(84,56): warning C4244: 'argument': conversion from 'double' to '_Tp', possible loss of data
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(84,56): warning C4244:         with
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(84,56): warning C4244:         [
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(84,56): warning C4244:             _Tp=int
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(84,56): warning C4244:         ]
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(96,44): warning C4244: 'argument': conversion from 'double' to '_Tp', possible loss of data
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(96,44): warning C4244:         with
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(96,44): warning C4244:         [
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(96,44): warning C4244:             _Tp=float
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(96,44): warning C4244:         ]
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(95,65): warning C4244: 'argument': conversion from 'double' to '_Tp', possible loss of data
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(95,65): warning C4244:         with
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(95,65): warning C4244:         [
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(95,65): warning C4244:             _Tp=float
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(95,65): warning C4244:         ]
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(180): warning C4715: 'setupMask': not all control paths return a value
   Arkanoid v0.1.vcxproj -> C:\Users\37602\source\Arkanoid\Arkanoid v0.1\x64\Debug\Arkanoid v0.1.exe
