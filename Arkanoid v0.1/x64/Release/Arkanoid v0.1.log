@@ -1,0 +1,43 @@
+﻿  main.cpp
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(87,23): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(95,37): warning C4244: 'argument': conversion from 'double' to '_Tp', possible loss of data
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(95,37): warning C4244:         with
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(95,37): warning C4244:         [
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(95,37): warning C4244:             _Tp=int
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(95,37): warning C4244:         ]
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(94,52): warning C4244: 'argument': conversion from 'double' to '_Tp', possible loss of data
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(94,52): warning C4244:         with
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(94,52): warning C4244:         [
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(94,52): warning C4244:             _Tp=int
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(94,52): warning C4244:         ]
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(106,44): warning C4244: 'argument': conversion from 'double' to '_Tp', possible loss of data
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(106,44): warning C4244:         with
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(106,44): warning C4244:         [
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(106,44): warning C4244:             _Tp=float
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(106,44): warning C4244:         ]
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(105,65): warning C4244: 'argument': conversion from 'double' to '_Tp', possible loss of data
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(105,65): warning C4244:         with
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(105,65): warning C4244:         [
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(105,65): warning C4244:             _Tp=float
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(105,65): warning C4244:         ]
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(131,34): warning C4244: 'argument': conversion from 'double' to '_Tp', possible loss of data
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(131,34): warning C4244:         with
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(131,34): warning C4244:         [
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(131,34): warning C4244:             _Tp=int
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(131,34): warning C4244:         ]
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(130,50): warning C4244: 'argument': conversion from 'double' to '_Tp', possible loss of data
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(130,50): warning C4244:         with
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(130,50): warning C4244:         [
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(130,50): warning C4244:             _Tp=int
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(130,50): warning C4244:         ]
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(146,48): warning C4244: '=': conversion from 'double' to '_Tp', possible loss of data
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(146,48): warning C4244:         with
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(146,48): warning C4244:         [
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(146,48): warning C4244:             _Tp=int
+C:\Users\37602\source\Arkanoid\Arkanoid v0.1\main.cpp(146,48): warning C4244:         ]
+  Generating code
+  3 of 295 functions ( 1.0%) were compiled, the rest were copied from previous compilation.
+    2 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  Arkanoid v0.1.vcxproj -> C:\Users\37602\source\Arkanoid\Arkanoid v0.1\x64\Release\Arkanoid v0.1.exe

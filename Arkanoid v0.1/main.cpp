@@ -1,6 +1,7 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
+#include <time.h>
 #include "opencv2/features2d.hpp"
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
@@ -19,13 +20,13 @@ struct MassCentre {
     Moments moment;
 };
 
-const Threshold RobotTH {123,203,0,151,217,255};
+const Threshold RobotTH { 95,156,87,255,0,255 };
 
 Threshold setupMask(Mat inputImage = Mat());
 Mat getMaskImage(Threshold TH, Mat rowImage);
 int main() {
     Threshold BallThreshold;
-    BallThreshold = { 0, 28, 156, 255, 0, 255 };
+    BallThreshold = { 0, 60, 156, 255, 0, 255 };
     //const Threshold BallThreshold = { 173,0,128,255,0,255 }; clen red
     Mat inputImage{ imread("test-images/test3.png", IMREAD_COLOR) };
     //BallThreshold = setupMask();
@@ -40,12 +41,15 @@ int main() {
     }
     MassCentre pastBall;
     double velocity = 0;
+    time_t start, end;
+    time(&start);
+    int count = 0;
     while (true) { //Taking an everlasting loop to show the video//
         cap >> CameraImage;
         if (CameraImage.empty()) {
             break;
         }
-        flip(CameraImage, CameraImage, 1); // flip while use frontal camera
+        //flip(CameraImage, CameraImage, 1); // flip while use frontal camera
         imshow("Video Player", CameraImage); // Showing the original video
         Mat resultImage, drawing, robotTracker;
         cvtColor(getMaskImage(BallThreshold, CameraImage) > 0, resultImage, COLOR_RGB2GRAY);
@@ -136,7 +140,7 @@ int main() {
             vy = (ball.point.y - pastBall.point.y);
         }
         velocity = sqrt(vx * vx + vy * vy);
-        cout << "velocity: " << velocity << '\n';
+        //cout << "velocity: " << velocity << '\n';
         // calculate future ball position
         Point ballTarget = robot.point;
         if (vy > 5)ballTarget.x = ball.point.x + (vx * (robot.point.y - ball.point.y) / vy);
@@ -162,8 +166,15 @@ int main() {
         if (waitKey(30) == 27) {
             break;
         }
+        ++count;
     }
+    time(&end);
+    double seconds = difftime(end, start);
+    double fps = -1;
+    std::cout << "Time taken : " << seconds << " seconds" << endl;
     cap.release();//Releasing the buffer memory//
+    fps = count / seconds;
+    std::cout << "Estimated frames per second : " << fps << endl;
     return 0;
 }
 
